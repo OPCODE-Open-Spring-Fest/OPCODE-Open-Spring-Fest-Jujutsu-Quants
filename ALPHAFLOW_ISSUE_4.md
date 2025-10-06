@@ -1,4 +1,12 @@
-# Issue #4: 🔧 Fix Agent Integration and Error Handling
+# Mission: Harmonize the Sorcerers (Medium • 4 pts)
+## Minimal Reproducible Example (MRE)
+
+```bash
+uvicorn Jujutsu-Quants.app.adk.main:app --reload
+curl -s -X POST http://localhost:8000/api/v2/report -H "Content-Type: application/json" -d '{"question":"Test integration"}' | jq
+```
+
+Expected: consistent response keys and types; 400 on empty request; clear error messages.
 
 ## 🎯 Problem Description
 The agent integration in the orchestrator has several issues including poor error handling, inconsistent return formats, and lack of proper validation. This makes the system unreliable and difficult to debug.

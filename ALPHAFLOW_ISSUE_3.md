@@ -1,4 +1,12 @@
-# Issue 3 (Beginner): Add classify_with_confidence stub in SentimentAgent
+# Mission: Weigh the Cursed Mood (Easy • 2 pts)
+## Minimal Reproducible Example (MRE)
+
+```bash
+uvicorn Jujutsu-Quants.app.adk.main:app --reload
+curl -s -X POST http://localhost:8000/api/v2/report -H "Content-Type: application/json" -d '{"question":"Sentiment on BTC ETF flows?"}' | jq
+```
+
+Expected: `sentiment` includes a `score` and `label` from `classify_with_confidence`.
 
 ## Task
 Provide a small, focused implementation task: implement a new method `classify_with_confidence(text: str) -> Dict` in `SentimentAgent` that wraps the existing `classify` and returns a confidence score and reason.

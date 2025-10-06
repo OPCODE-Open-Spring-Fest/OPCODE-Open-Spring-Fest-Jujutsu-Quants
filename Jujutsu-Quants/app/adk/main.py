@@ -1,5 +1,5 @@
 
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, Query, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Dict, Any, Optional
@@ -91,6 +91,14 @@ async def get_advanced_report(payload: ReportRequest):
     - Else, use market_data passed in the request.
     - If news_urls provided, fetch and parse content to articles.
     """
+    # Basic validation: require at least one input signal
+    if not ((payload.symbols and len(payload.symbols) > 0) or
+            (payload.market_data and len(payload.market_data) > 0) or
+            (payload.news_articles and len(payload.news_articles) > 0) or
+            (payload.news_urls and len(payload.news_urls) > 0) or
+            (payload.question and payload.question.strip())):
+        raise HTTPException(status_code=400, detail="Empty request: provide symbols, market_data, news_articles, news_urls, or question")
+
     # Resolve market data
     resolved_market_data: List[Dict[str, Any]] = []
     if payload.symbols and len(payload.symbols) > 0:

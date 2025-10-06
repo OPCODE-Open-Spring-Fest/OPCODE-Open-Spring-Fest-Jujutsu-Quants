@@ -53,7 +53,7 @@ function App() {
           
           {/* Loading text with gradient */}
           <h1 className="text-4xl font-bold mb-4 text-gradient animate-pulse">
-            TradeSage AI
+            A I C
           </h1>
           <p className="text-gray-600 dark:text-gray-300 text-lg mb-4">
             Initializing Multi-Agent Trading Analysis
@@ -92,7 +92,7 @@ function App() {
 
       {/* Version info */}
       <div className="fixed bottom-4 left-4 z-40 text-xs text-gray-500 dark:text-gray-400 no-print">
-        TradeSage AI v2.0 - Enhanced UI
+        AIC v2.0 - Enhanced UI
       </div>
 
       {/* Main dashboard with dark mode support */}

@@ -54,6 +54,52 @@ const TradingDashboard = () => {
     }
   };
 
+  const mapAgentResultsToHypothesis = (response, submitted) => {
+    const now = new Date();
+    const safeArray = (v) => (Array.isArray(v) ? v : []);
+    const safeText = (t) => (typeof t === 'string' ? t : JSON.stringify(t || ''));
+
+    const summaries = safeArray(response?.summaries);
+    const breaking = safeArray(response?.breaking_alerts);
+    const bias = safeArray(response?.bias);
+    const anomalies = safeArray(response?.anomalies);
+    const sentiment = safeArray(response?.sentiment);
+
+    const confirmations_detail = summaries.slice(0, 10).map((s) => ({
+      quote: safeText(s?.text || s?.summary || s?.title || ''),
+      reason: safeText(s?.reason || s?.text || ''),
+      source: s?.source || 'summary',
+      strength: 'Moderate'
+    }));
+
+    const contradictions_detail = [...breaking, ...bias].slice(0, 10).map((b) => ({
+      quote: safeText(b?.text || b?.title || ''),
+      reason: safeText(b?.reason || b?.text || ''),
+      source: b?.source || 'alert',
+      strength: 'Strong'
+    }));
+
+    const trendData = anomalies.slice(0, 12).map((a, idx) => ({
+      date: new Date(now.getTime() - (11 - idx) * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
+      value: typeof a?.value === 'number' ? a.value : 50 + Math.round(Math.random() * 10)
+    }));
+
+    const titleRaw = submitted?.hypothesis || submitted?.idea || submitted?.context || 'New analysis';
+
+    return {
+      id: Date.now(),
+      title: titleRaw,
+      status: 'active',
+      confidence: Math.min(95, Math.max(40, confirmations_detail.length * 10 + (sentiment.length > 0 ? 5 : 0))),
+      contradictions: contradictions_detail.length,
+      confirmations: confirmations_detail.length,
+      contradictions_detail,
+      confirmations_detail,
+      trendData,
+      lastUpdated: now.toLocaleString()
+    };
+  };
+
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -73,9 +119,11 @@ const TradingDashboard = () => {
       ));
 
       if (looksSuccessful) {
+        const newHyp = mapAgentResultsToHypothesis(response, payload);
+        setHypotheses((prev) => [newHyp, ...prev]);
+        setSelectedHypothesis(newHyp);
         setShowForm(false);
         setFormData({ mode: 'analyze', hypothesis: '', idea: '', context: '' });
-        await fetchDashboardData();
         
         setNotification({
           type: 'success',

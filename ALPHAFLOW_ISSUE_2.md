@@ -1,4 +1,13 @@
-# Issue #2: 🧠 Fix News QA Agent Oversimplified Implementation
+# Mission: Interrogate the Whispering Scrolls (Easy/Medium • 2–4 pts)
+## Minimal Reproducible Example (MRE)
+
+```bash
+uvicorn Jujutsu-Quants.app.adk.main:app --reload
+curl -s "http://localhost:8000/api/v2/report/simple?question=What%20happened%20to%20AAPL%20today%3F&urls=https://example.com/news1,https://example.com/news2" | jq
+```
+
+Expected: `qa.answer` is grounded in provided articles with citations.
+Actual: oversimplified answer without grounding.
 
 ## 🎯 Problem Description
 The `NewsQAAgent` in `app/adk/agents/news_qa_agent.py` has an extremely oversimplified implementation that only does basic keyword matching. This makes it completely inadequate for real-world question answering.

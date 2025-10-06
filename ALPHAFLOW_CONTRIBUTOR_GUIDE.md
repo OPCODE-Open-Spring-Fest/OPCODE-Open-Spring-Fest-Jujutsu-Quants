@@ -68,7 +68,7 @@ jujutsu-quants/
 └── deployment/               # Cloud Deployment Configs
 ```
 
-### AI Agent Ecosystem
+### AI Agent Ecosystem (Python-based)
 - **Sentiment Agent**: Advanced financial sentiment analysis
 - **Anomaly Detector**: Market anomaly identification
 - **Bias Detector**: News bias detection and analysis
@@ -76,27 +76,51 @@ jujutsu-quants/
 - **Breaking News Alert**: Real-time news monitoring
 - **QA Agent**: Intelligent question answering
 
-## 🎯 Current Open Issues (Beginner-friendly)
+All agents are plain Python modules for portability and easy contribution. You can optionally plug in frameworks:
+
+- LangChain (tooling, routing, retrievers)
+- LlamaIndex (indexing, RAG graphs)
+- Google ADK (agent runtime; set `ADK_MODE=1`)
+
+Keep PRs focused and dependency-light by default; place optional integrations behind flags.
+
+## 🎯 Current Open Issues (with Levels & Points)
 
 ### 🚨 Critical Issues (Fix First!)
 
-#### Issue 1: [Replace hardcoded entities with input/config in BiasDetector](./ALPHAFLOW_ISSUE_1.md)
+#### Mission: Unmask the Cursed Bias (Easy • 2 pts)
+[Open brief](./ALPHAFLOW_ISSUE_1.md)
 - Small change: accept `entities` param or use config; fallback to title tokens
 - Scope: 30–45 mins
 
-#### Issue 2: [Improve NewsQA relevance and answer extraction (stubbed methods)](./ALPHAFLOW_ISSUE_2.md)
+#### Mission: Interrogate the Whispering Scrolls (Easy/Medium • 2–4 pts)
+[Open brief](./ALPHAFLOW_ISSUE_2.md)
 - Implement tiny helper methods with given I/O; return top excerpts + sources
 - Scope: ~1–2 hours
 
 ### 🔧 Enhancement Issues
 
-#### Issue 3: [Add classify_with_confidence to SentimentAgent (tiny wrapper)](./ALPHAFLOW_ISSUE_3.md)
+#### Mission: Weigh the Cursed Mood (Easy • 2 pts)
+[Open brief](./ALPHAFLOW_ISSUE_3.md)
 - Add a new method that returns label + heuristic confidence + reason
 - Scope: 20–30 mins
 
-#### Issue 4: [Agent integration/error handling pass](./ALPHAFLOW_ISSUE_4.md)
+#### Mission: Harmonize the Sorcerers (Medium • 4 pts)
+[Open brief](./ALPHAFLOW_ISSUE_4.md)
 - Standardize outputs and add basic try/except around each agent in orchestrator
 - Scope: 1–2 hours
+
+### 🧠 Agents: Medium & Hard
+
+#### Mission: Rank the Spirit Fragments (Medium • 4 pts)
+[Open brief](./ALPHAFLOW_ISSUE_5.md)
+- Implement BM25+ (or cosine on mini-embeddings) passage ranking over article chunks; return top-3 cited spans
+- Scope: 3–4 hours
+
+#### Mission: Forge the Domain Expansion (Hard • 8 pts)
+[Open brief](./ALPHAFLOW_ISSUE_6.md)
+- Build a summarizer agent that fuses: price movements, ranked passages, and bias flags; produce structured JSON with rationale and uncertainty
+- Scope: 1–2 days
 
 ## 🧪 Development Workflow
 
@@ -157,6 +181,11 @@ cd frontend && npm run lint
 - Use descriptive method names
 - Include error handling
 - Follow the established configuration pattern
+
+Optional frameworks (when justified):
+- LangChain retrievers or tools inside agents
+- LlamaIndex for document stores and RAG graphs
+- Google ADK for streaming agent execution (enable with `ADK_MODE=1`)
 
 ## 🔧 Configuration
 

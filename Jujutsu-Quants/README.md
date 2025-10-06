@@ -1,4 +1,4 @@
-# OpenAI News Lab
+# OpenAI News Lab (Python-based Agentic AI)
 
 A small, modular agent pipeline for market/news analysis. It fetches quotes (Alpha Vantage/FMP), scrapes articles from URLs, and runs simple agents for anomalies, summaries, diversity, breaking alerts, bias, sentiment, plus optional Q&A.
 
@@ -11,7 +11,7 @@ A small, modular agent pipeline for market/news analysis. It fetches quotes (Alp
 - Heuristic sentiment
 - Optional news Q&A
 
-## Backend (FastAPI)
+## Backend (FastAPI, Python)
 
 ### 1) Install
 ```bash
@@ -69,9 +69,15 @@ Content-Type: application/json
 ```bash
 cd frontend
 npm install
-npm start
+set "REACT_APP_API_URL=http://localhost:8000" && npm start
 ```
 The dev server runs at http://localhost:3000. If you need API calls, point them to http://localhost:8000.
+
+### Troubleshooting
+- Agentic AI note: The system orchestrates multiple Python agents (sentiment, anomaly, bias, QA). You may optionally use frameworks like LangChain/LlamaIndex/Google ADK behind config flags; default path remains dependency-light.
+- API calls 404: ensure backend is running at http://localhost:8000.
+- CORS errors: backend enables permissive CORS; restart if you changed config.
+- Empty submission: backend returns 400 unless you provide at least one of `symbols`, `market_data`, `news_articles`, `news_urls`, or a `question`.
 
 ## Project Structure
 - `app/adk/agents/*`: small, focused agents (low-comment, easy to scan)

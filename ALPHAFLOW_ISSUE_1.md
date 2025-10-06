@@ -1,4 +1,20 @@
-# Issue 1 (Beginner): Replace Hardcoded Entities in BiasDetector with Config/Input
+# Mission: Unmask the Cursed Bias (Easy • 2 pts)
+
+## Minimal Reproducible Example (MRE)
+
+1) Backend running:
+```bash
+uvicorn Jujutsu-Quants.app.adk.main:app --reload
+```
+2) Send sample request:
+```bash
+curl -s -X POST http://localhost:8000/api/v2/report -H "Content-Type: application/json" -d '{"question":"Test Tesla hypothesis"}' | jq
+```
+3) Expected: response JSON contains `bias` list. Current bug: entities are hardcoded; update detector to accept list via config or request.
+
+## Acceptance Criteria
+- Add config-driven or request-driven entity list.
+- Update tests and README with configuration example.
 
 ## Task
 Make `BiasDetector` usable by removing hardcoded `TARGET_ENTITIES` and allowing entities from:
