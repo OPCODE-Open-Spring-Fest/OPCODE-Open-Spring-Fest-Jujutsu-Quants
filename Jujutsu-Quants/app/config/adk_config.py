@@ -8,6 +8,7 @@ ADK_CONFIG = {
     "location": os.getenv("REGION", "us-central1"),
     "model": "gemini-2.0-flash",
     "use_vertex_ai": True,
+    "adk_mode": os.getenv("ADK_MODE", "0") == "1",
 }
 
 # Agent Configuration
@@ -46,6 +47,12 @@ AGENT_CONFIGS = {
     "news_qa_agent": {
         "name": "news_qa_agent",
         "description": "Answers questions from the news corpus.",
+        "model": "gemini-2.0-flash",
+        "temperature": 0.2,
+    },
+    "sentiment_agent": {
+        "name": "sentiment_agent",
+        "description": "Classifies article sentiment.",
         "model": "gemini-2.0-flash",
         "temperature": 0.2,
     },

@@ -1,15 +1,25 @@
 // frontend/src/api/tradeSageApi.js
-const API_BASE_URL = process.env.REACT_APP_API_URL || '/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
 class TradeSageAPI {
   async processHypothesis(data) {
     try {
-      const response = await fetch(`${API_BASE_URL}/process`, {
+      // Map UI modes to backend /api/v2/report question payload
+      const question = (data?.hypothesis || data?.idea || data?.context || '').toString();
+      const payload = {
+        symbols: [],
+        market_data: [],
+        news_articles: [],
+        news_urls: [],
+        question: question
+      };
+
+      const response = await fetch(`${API_BASE_URL}/api/v2/report`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify(payload),
       });
       
       if (!response.ok) {
@@ -47,7 +57,8 @@ class TradeSageAPI {
   // New dashboard endpoints
   async getDashboardData() {
     try {
-      const response = await fetch(`${API_BASE_URL}/dashboard`);
+      // Use backend health endpoint as a lightweight dashboard status source
+      const response = await fetch(`${API_BASE_URL}/health`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }

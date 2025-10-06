@@ -48,16 +48,30 @@ import re
 import sys
 from io import StringIO
 from google.adk.agents import Agent
-from google.adk.runners import Runner
-from google.adk.sessions import InMemorySessionService
-from google.genai import types
-
+from app.config.adk_config import ADK_CONFIG
 from app.adk.agents import (
     create_anomaly_detector, create_summarizer, create_diversity_analyzer, create_breaking_news_alert, create_bias_detector, create_news_qa_agent, create_sentiment_agent
 )
+from app.adk.adk_agents import (
+    create_adk_anomaly_agent, create_adk_summarizer_agent, create_adk_diversity_agent, create_adk_breaking_agent, create_adk_bias_agent, create_adk_sentiment_agent, create_adk_qa_agent
+)
+
+try:
+    from google.adk.runners import Runner
+    from google.genai import types
+except Exception:
+    Runner = None
+    types = None
 
 class Orchestrator:
     def __init__(self):
+        self.use_adk = ADK_CONFIG.get("adk_mode", False) and Runner is not None and types is not None
+        if self.use_adk:
+            self._init_adk()
+        else:
+            self._init_lightweight()
+
+    def _init_lightweight(self):
         self.anomaly_detector = create_anomaly_detector()
         self.summarizer = create_summarizer()
         self.diversity_analyzer = create_diversity_analyzer()
@@ -66,23 +80,73 @@ class Orchestrator:
         self.news_qa_agent = create_news_qa_agent()
         self.sentiment_agent = create_sentiment_agent()
 
+    def _init_adk(self):
+        self.adk = {
+            'anomaly': create_adk_anomaly_agent(),
+            'summarizer': create_adk_summarizer_agent(),
+            'diversity': create_adk_diversity_agent(),
+            'breaking': create_adk_breaking_agent(),
+            'bias': create_adk_bias_agent(),
+            'sentiment': create_adk_sentiment_agent(),
+            'qa': create_adk_qa_agent(),
+        }
+
     async def process_news_workflow(self, market_data, news_articles, question=None):
+        if self.use_adk:
+            return await self._process_with_adk(market_data, news_articles, question)
+        return await self._process_lightweight(market_data, news_articles, question)
+
+    async def _process_lightweight(self, market_data, news_articles, question=None):
         results = {}
-        # anomalies from anomaly_detector
         results['anomalies'] = self.anomaly_detector.detect(market_data)
-        # summaries from summarizer
         results['summaries'] = self.summarizer.summarize(news_articles)
-        # diversity from diversity_analyzer
         results['diversity'] = self.diversity_analyzer.analyze(news_articles)
-        # breaking alerts from breaking_news_alert
         results['breaking_alerts'] = self.breaking_news_alert.alert(news_articles)
-        # bias from bias_detector
         results['bias'] = self.bias_detector.detect(news_articles)
-        # sentiment from sentiment_agent
         results['sentiment'] = self.sentiment_agent.analyze(news_articles)
-        # optional QA
         if question:
             results['qa'] = self.news_qa_agent.answer(news_articles, question)
+        return results
+
+    async def _process_with_adk(self, market_data, news_articles, question=None):
+        def text_from_news(items):
+            return "\n\n".join([f"Title: {a.get('title','')}\n{a.get('content','')}" for a in items])
+
+        app_name = "letsstock-with-ai"
+        user_id = "user"
+        results = {}
+
+        async def run(agent_key, text):
+            agent = self.adk.get(agent_key)
+            if agent is None:
+                return ""
+            runner = Runner(agent=agent, app_name=app_name)
+            msg = types.Content(role='user', parts=[types.Part(text=text)])
+            out = ""
+            async for e in runner.run_async(user_id=user_id, session_id=f"sess_{agent_key}", new_message=msg):
+                if getattr(e, 'content', None) and getattr(e.content, 'parts', None):
+                    for p in e.content.parts:
+                        if getattr(p, 'text', None):
+                            out += p.text + "\n"
+            return out.strip()
+
+        news_text = text_from_news(news_articles)
+        anomalies_text = await run('anomaly', f"Market changes: {market_data}")
+        summaries_text = await run('summarizer', news_text)
+        diversity_text = await run('diversity', news_text)
+        breaking_text = await run('breaking', news_text)
+        bias_text = await run('bias', news_text)
+        sentiment_text = await run('sentiment', news_text)
+        qa_text = await run('qa', f"Question: {question}\n\nContext:\n{news_text}") if question else None
+
+        results['anomalies'] = [{'text': anomalies_text}] if anomalies_text else []
+        results['summaries'] = [{'text': summaries_text}] if summaries_text else []
+        results['diversity'] = {'text': diversity_text} if diversity_text else {}
+        results['breaking_alerts'] = [{'text': breaking_text}] if breaking_text else []
+        results['bias'] = [{'text': bias_text}] if bias_text else []
+        results['sentiment'] = [{'text': sentiment_text}] if sentiment_text else []
+        if qa_text:
+            results['qa'] = {'answer': qa_text}
         return results
 
     def run_all_advanced(self, market_data, news_articles, question=None):
