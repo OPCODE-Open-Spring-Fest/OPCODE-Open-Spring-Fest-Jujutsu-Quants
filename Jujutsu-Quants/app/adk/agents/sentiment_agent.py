@@ -40,19 +40,6 @@ def create_sentiment_agent():
             if neg > pos:
                 return "negative"
             return "neutral"
-        def classify_with_confidence(self, text: str) -> Dict[str, Any]:
-            """Classify text with confidence and reason."""
-            t = text.lower() if text else ""
-            pos_count = sum(1 for w in self.positive_words if w in t)
-            neg_count = sum(1 for w in self.negative_words if w in t)
-            label = self.classify(text)
-            confidence = min(1.0, (pos_count + neg_count) / 5.0)  # capped at 1.0
-            reason = f"pos={pos_count}, neg={neg_count}"
-            return {
-                "label": label,
-                "confidence": confidence,
-                "reason": reason
-            }
         def analyze(self, articles: List[Dict]) -> List[Dict]:
             results: List[Dict] = []
             for a in articles:
