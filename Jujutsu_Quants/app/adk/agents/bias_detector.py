@@ -7,7 +7,6 @@ You will output a Bias Score (0 to 100) and a confidence level (Low, Medium, Hig
 Output format: JSON array of articles with detailed bias flags.
 """
 
-# Polarity words that increase or decrease sentiment strength
 POLARITY_LEXICON = {
     # High Positive:
     'triumph': 20, 'brilliant': 20, 'masterful': 20, 'unprecedented': 15, 'success': 15,
@@ -51,7 +50,7 @@ def create_bias_detector():
             """Main bias detection method."""
             bias_results = []
 
-            # Step 1️⃣ — Resolve entity list
+            
             if entities is None:
                 entities = config.get('entities', [])
                 if not entities:
@@ -62,7 +61,7 @@ def create_bias_detector():
                         derived.extend([x.lower() for x in found])
                     entities = list(set(derived))
 
-            # Step 2️⃣ — Analyze each article
+            
             for article in articles:
                 text = article.get('content', '')
                 if not text:
